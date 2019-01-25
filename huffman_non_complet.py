@@ -47,11 +47,16 @@ class Arbre :
 ###  Ex.1  construction de l'arbre d'Huffamn utilisant la structure de "tas binaire"
 def arbre_huffman(frequences) :
     # à compléter
+    return 0
 
 ###  Ex.2  construction du code d'Huffamn
 
 def parcours(arbre,prefixe,code) :    
-    # à compléter
+    if arbre.estFeuille():
+        code[arbre.lettre] = prefixe
+    else:
+        parcours(arbre.gauche, prefixe+"0", code)
+        parcours(arbre.droit, prefixe+"1", code)
 
 def code_huffman(arbre) :
     # on remplit le dictionnaire du code d'Huffman en parcourant l'arbre
@@ -66,15 +71,17 @@ def code_huffman(arbre) :
 
 def encodage(dico,fichier) :
     # à compléter
+    return 0
 
-encode = encodage(dico,'leHorla.txt')
-print(encode)
+#encode = encodage(dico,'leHorla.txt')
+#print(encode)
 
 
 ###  Ex.4  décodage d'un fichier compresse
 
 def decodage(arbre,fichierCompresse) :
     # à compléter
+    return 0
 
-decode = decodage(H,'leHorlaEncoded.txt')
-print(decode)
+#decode = decodage(H,'leHorlaEncoded.txt')
+#print(decode)
