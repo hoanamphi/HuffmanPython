@@ -89,6 +89,7 @@ def code_huffman(arbre):
 def encodage(dico, fichier):
     f = open(fichier, "r")
     text = f.read()
+    f.close()
 
     for lettre in text:
         if not(lettre in dico):
@@ -96,22 +97,64 @@ def encodage(dico, fichier):
         else:
             dico[lettre] = dico[lettre]+1/len(text)
 
+    arbre = arbre_huffman(dico)
     code = code_huffman(arbre_huffman(dico))
     new_text = ""
     for lettre in text:
         new_text += code[lettre]
 
-    bytes = [int(new_text[i:i+7], 2) for i in range(0, len(new_text), 7)]
+    binary = (int(new_text[i: i + 8], 2) for i in range(0, len(new_text), 8))
 
-    print(bytes)
+    byte_rep = bytes()
+
+    compressed_f = open('compressed.bit', 'wb')
+    compressed_f.write(byte_rep)
+    compressed_f.close()
+
+    return arbre, new_text
 
 
-
-
-encodage({}, "leHorla.txt.txt")
+dico = {}
+(arbre, text_encoded) = encodage(dico, "leHorla.txt")
 
 #  Ex.4  décodage d'un fichier compresse
 
 
 def decodage(arbre, fichierCompresse):
-    return 0
+    compressed_f = open(fichierCompresse, "rb")
+    byte = compressed_f.read()
+    compressed_f.close()
+
+    og_code = str(bin(int(byte.hex(), 16)))[2:]
+    code = og_code
+
+    texte = ""
+    while len(code) != 0:
+        (lettre, code) = parcours_inverse(arbre, code)
+        texte += lettre
+
+    f = open("decompressed.txt", "w")
+    f.write(texte)
+    f.close()
+
+    return texte, og_code
+
+
+def parcours_inverse(arbre, code):
+    if arbre.estFeuille():
+        return arbre.lettre, code
+    else:
+        if len(code) > 1:
+            if code[0] == "0":
+                return parcours_inverse(arbre.gauche, code[1:])
+            else:
+                return parcours_inverse(arbre.droit, code[1:])
+        else:
+            if code[0] == "0":
+                return arbre.lettre, ""
+            else:
+                return arbre.lettre, ""
+
+
+(texte, code) = decodage(arbre, "compressed.bit")
+print((len(text_encoded), len(code)))
