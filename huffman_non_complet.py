@@ -103,30 +103,32 @@ def encodage(dico, fichier):
     for lettre in text:
         new_text += code[lettre]
 
-    binary = (int(new_text[i: i + 8], 2) for i in range(0, len(new_text), 8))
+    text_chunks = [new_text[i: i + 8] for i in range(0, len(new_text), 8)]
+    if len(new_text) % 8 != 0:
+        text_chunks[len(text_chunks)-1] = text_chunks[len(text_chunks)-1] + (8-(len(new_text) % 8))*"0"
 
-    byte_rep = bytes()
+    byte_rep = bytes(int(j, 2) for j in text_chunks)
 
     compressed_f = open('compressed.bit', 'wb')
     compressed_f.write(byte_rep)
     compressed_f.close()
 
-    return arbre, new_text
+    return arbre, text_chunks, (8-(len(new_text) % 8))
 
 
 dico = {}
-(arbre, text_encoded) = encodage(dico, "leHorla.txt")
+(arbre, text_encoded, bourrage) = encodage(dico, "leHorla.txt")
 
 #  Ex.4  décodage d'un fichier compresse
 
 
-def decodage(arbre, fichierCompresse):
+def decodage(arbre, fichierCompresse, bourrage):
     compressed_f = open(fichierCompresse, "rb")
     byte = compressed_f.read()
     compressed_f.close()
 
     og_code = str(bin(int(byte.hex(), 16)))[2:]
-    code = og_code
+    code = og_code[:len(og_code)-bourrage+1]
 
     texte = ""
     while len(code) != 0:
@@ -156,5 +158,5 @@ def parcours_inverse(arbre, code):
                 return arbre.lettre, ""
 
 
-(texte, code) = decodage(arbre, "compressed.bit")
+(texte, code) = decodage(arbre, "compressed.bit", bourrage)
 print((len(text_encoded), len(code)))
