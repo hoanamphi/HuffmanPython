@@ -5,34 +5,8 @@
 
 from heapq import *
 
-#  distribution de proba sur les letrres
 
-caracteres = [
-    ' ', 'a', 'b', 'c', 'd', 'e', 'f',
-    'g', 'h', 'i', 'j', 'k', 'l', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x', 'y', 'z']
-
-proba = [
-    0.1835, 0.0640, 0.0064, 0.0259, 0.0260, 0.1486, 0.0078,
-    0.0083, 0.0061, 0.0591, 0.0023, 0.0001, 0.0465, 0.0245,
-    0.0623, 0.0459, 0.0256, 0.0081, 0.0555, 0.0697, 0.0572,
-    0.0506, 0.0100, 0.0000, 0.0031, 0.0021, 0.0008]
-
-
-def frequences():
-    table = {}
-    n = len(caracteres)
-    for i in range(n):
-        table[caracteres[i]] = proba[i]
-    return table
-
-
-F = frequences()
-
-#  la classe Arbre
-
-
+# La classe Arbre
 class Arbre:
     def __init__(self, lettre, gauche=None, droit=None):
         self.gauche = gauche
@@ -65,9 +39,8 @@ def arbre_huffman(frequences):
         heappush(tas, (gauche[0]+droite[0], "", New_Arbre))
     return heappop(tas)[2]
 
+
 #  Ex.2  construction du code d'Huffamn
-
-
 def parcours(arbre, prefixe, code):
     if arbre.estFeuille():
         code[arbre.lettre] = prefixe
@@ -84,6 +57,16 @@ def code_huffman(arbre):
 
 
 #  Ex.3  encodage d'un texte contenu dans un fichier
+def frequences(texte):
+    dico = {}
+
+    for lettre in texte:
+        if not(lettre in dico):
+            dico[lettre] = 1/len(texte)
+        else:
+            dico[lettre] = dico[lettre]+1/len(texte)
+
+    return dico
 
 
 def encodage(dico, fichier):
@@ -91,11 +74,7 @@ def encodage(dico, fichier):
     text = f.read()
     f.close()
 
-    for lettre in text:
-        if not(lettre in dico):
-            dico[lettre] = 1/len(text)
-        else:
-            dico[lettre] = dico[lettre]+1/len(text)
+    dico = frequences(text)
 
     arbre = arbre_huffman(dico)
     code = code_huffman(arbre_huffman(dico))
@@ -116,12 +95,7 @@ def encodage(dico, fichier):
     return arbre, text_chunks, (8-(len(new_text) % 8))
 
 
-dico = {}
-(arbre, text_encoded, bourrage) = encodage(dico, "leHorla.txt")
-
 #  Ex.4  décodage d'un fichier compresse
-
-
 def decodage(arbre, fichierCompresse, bourrage):
     compressed_f = open(fichierCompresse, "rb")
     byte = compressed_f.read()
@@ -158,5 +132,9 @@ def parcours_inverse(arbre, code):
                 return arbre.lettre, ""
 
 
-(texte, code) = decodage(arbre, "compressed.bit", bourrage)
-print((len(text_encoded), len(code)))
+if __name__ == "__main__":
+    dico = {}
+    (arbre, text_encoded, bourrage) = encodage(dico, "leHorla.txt")
+
+    (texte, code) = decodage(arbre, "compressed.bit", bourrage)
+    print(texte)
