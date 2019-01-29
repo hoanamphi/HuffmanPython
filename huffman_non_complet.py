@@ -4,6 +4,7 @@
 ####################################################
 
 from heapq import *
+from pickle import *
 
 
 # La classe Arbre
@@ -57,8 +58,7 @@ def code_huffman(arbre):
 
 
 #  Ex.3  encodage d'un texte contenu dans un fichier
-def frequences(texte):
-    dico = {}
+def frequences(dico, texte):
 
     for lettre in texte:
         if not(lettre in dico):
@@ -69,12 +69,12 @@ def frequences(texte):
     return dico
 
 
-def encodage(dico, fichier):
+def encodage(dico, fichier, destination):
     f = open(fichier, "r")
     text = f.read()
     f.close()
 
-    dico = frequences(text)
+    frequences(dico, text)
 
     arbre = arbre_huffman(dico)
     code = code_huffman(arbre_huffman(dico))
@@ -83,25 +83,35 @@ def encodage(dico, fichier):
         new_text += code[lettre]
 
     text_chunks = [new_text[i: i + 8] for i in range(0, len(new_text), 8)]
+    bourrage = (8 - (len(new_text) % 8))
     if len(new_text) % 8 != 0:
-        text_chunks[len(text_chunks)-1] = text_chunks[len(text_chunks)-1] + (8-(len(new_text) % 8))*"0"
+        text_chunks[len(text_chunks)-1] = text_chunks[len(text_chunks)-1] + bourrage*"0"
 
     byte_rep = bytes(int(j, 2) for j in text_chunks)
 
-    compressed_f = open('compressed.bit', 'wb')
+    compressed_f = open(destination, 'wb')
+
+    dump(arbre, compressed_f)
+    dump(bourrage, compressed_f)
+
     compressed_f.write(byte_rep)
     compressed_f.close()
 
-    return arbre, text_chunks, (8-(len(new_text) % 8))
+    return code
 
 
 #  Ex.4  décodage d'un fichier compresse
-def decodage(arbre, fichierCompresse, bourrage):
+def decodage(fichierCompresse):
     compressed_f = open(fichierCompresse, "rb")
+
+    arbre = load(compressed_f)
+    bourrage = load(compressed_f)
     byte = compressed_f.read()
     compressed_f.close()
 
     og_code = str(bin(int(byte.hex(), 16)))[2:]
+    if len(og_code) % 8 != 0:
+        og_code = (8 - (len(og_code) % 8))*"0" + og_code
     code = og_code[:len(og_code)-bourrage+1]
 
     texte = ""
@@ -134,7 +144,8 @@ def parcours_inverse(arbre, code):
 
 if __name__ == "__main__":
     dico = {}
-    (arbre, text_encoded, bourrage) = encodage(dico, "leHorla.txt")
+    code = encodage(dico, "leHorla.txt", "compressed.bit")
 
-    (texte, code) = decodage(arbre, "compressed.bit", bourrage)
+    (texte, text_encod) = decodage("compressed.bit")
+    print(code)
     print(texte)
