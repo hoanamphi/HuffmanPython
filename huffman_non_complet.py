@@ -59,14 +59,11 @@ def code_huffman(arbre):
 
 #  Ex.3  encodage d'un texte contenu dans un fichier
 def frequences(dico, texte):
-
     for lettre in texte:
         if not(lettre in dico):
             dico[lettre] = 1/len(texte)
         else:
             dico[lettre] = dico[lettre]+1/len(texte)
-
-    return dico
 
 
 def encodage(dico, fichier, destination):
@@ -82,10 +79,12 @@ def encodage(dico, fichier, destination):
     for lettre in text:
         new_text += code[lettre]
 
-    text_chunks = [new_text[i: i + 8] for i in range(0, len(new_text), 8)]
-    bourrage = (8 - (len(new_text) % 8))
-    if len(new_text) % 8 != 0:
-        text_chunks[len(text_chunks)-1] = text_chunks[len(text_chunks)-1] + bourrage*"0"
+    len_newtext = len(new_text)
+
+    text_chunks = [new_text[i: i + 8] for i in range(0, len_newtext, 8)]
+    bourrage = (8 - (len_newtext % 8))
+    if len_newtext % 8 != 0:
+        text_chunks[-1] = text_chunks[-1] + bourrage*"0"
 
     byte_rep = bytes(int(j, 2) for j in text_chunks)
 
@@ -110,9 +109,10 @@ def decodage(fichierCompresse):
     compressed_f.close()
 
     og_code = str(bin(int(byte.hex(), 16)))[2:]
-    if len(og_code) % 8 != 0:
-        og_code = (8 - (len(og_code) % 8))*"0" + og_code
-    code = og_code[:len(og_code)-bourrage+1]
+    len_ogcode = len(og_code)
+    if len_ogcode % 8 != 0:
+        og_code = (8 - (len_ogcode % 8))*"0" + og_code
+    code = og_code[:len_ogcode-bourrage+1]
 
     texte = ""
     while len(code) != 0:
@@ -147,5 +147,3 @@ if __name__ == "__main__":
     code = encodage(dico, "leHorla.txt", "compressed.bit")
 
     (texte, text_encod) = decodage("compressed.bit")
-    print(code)
-    print(texte)
