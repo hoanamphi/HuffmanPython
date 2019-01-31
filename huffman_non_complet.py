@@ -74,7 +74,7 @@ def encodage(dico, fichier, destination):
     frequences(dico, text)
 
     arbre = arbre_huffman(dico)
-    code = code_huffman(arbre_huffman(dico))
+    code = code_huffman(arbre)
     new_text = ""
     for lettre in text:
         new_text += code[lettre]
